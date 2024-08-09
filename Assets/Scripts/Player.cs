@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    Vector2 inputVec;
+    public Vector2 inputVec;
     Rigidbody2D rigid;
     public float speed;
     SpriteRenderer spriteRenderer;
@@ -29,7 +29,6 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         Vector2 nextVec = inputVec.normalized * speed * Time.fixedDeltaTime;
-        animator.SetFloat("Speed", nextVec.magnitude);
         rigid.MovePosition(rigid.position + nextVec);
     }
     private void LateUpdate()
@@ -38,5 +37,6 @@ public class Player : MonoBehaviour
         {
             spriteRenderer.flipX = inputVec.x < 0;
         }
+        animator.SetFloat("Speed", inputVec.magnitude);
     }
 }
