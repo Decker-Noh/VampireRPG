@@ -9,12 +9,14 @@ public class Player : MonoBehaviour
     public float speed;
     SpriteRenderer spriteRenderer;
     Animator animator;
-    // Start is called before the first frame update
+
+    public Scanner scanner;
     void Start()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        scanner = GetComponent<Scanner>();
     }
 
 

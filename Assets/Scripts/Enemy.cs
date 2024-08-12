@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -12,17 +13,22 @@ public class Enemy : MonoBehaviour
     public RuntimeAnimatorController[] animatorCon;
     Animator animator;
 
+    WaitForFixedUpdate wait;
+
     bool isLive;
 
     Rigidbody2D rigid;
+    Collider2D collider;
     SpriteRenderer spriteRenderer;
 
     // Start is called before the first frame update
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
+        collider = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator =gameObject.GetComponent<Animator>();
+        wait = new WaitForFixedUpdate();
     }
     private void OnEnable()
     {
@@ -40,7 +46,7 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (!isLive)
+        if (!isLive || animator.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
         {
             return;
         }
@@ -50,19 +56,28 @@ public class Enemy : MonoBehaviour
         rigid.velocity = Vector2.zero;
         spriteRenderer.flipX = nextVec.x < 0;
     }
+    IEnumerator KnockBack()
+    {
+        yield return wait;
+        if (!gameObject.activeSelf)
+            yield break;
+        Vector3 playerPos = GameManager.Instance.player.transform.position;
+        Vector3 dirVec = transform.position - playerPos;
+        rigid.AddForce(dirVec.normalized * 10, ForceMode2D.Impulse);
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Bullet"))
+        if (!collision.CompareTag("Bullet") || !gameObject.activeSelf)
             return;
         health -= collision.GetComponent<Bullet>().damage;
+        StartCoroutine("KnockBack");
         if (health > 0)
         {
-            Debug.Log(health + "ø©±‚2");
             //««±Ô¿”
+            animator.SetTrigger("Hit");
         }
         else
         {
-            Debug.Log(health + "ªÁ∏¡");
             //∏ÛΩ∫≈Õ ªÁ∏¡
             Dead();
         }

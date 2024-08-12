@@ -7,20 +7,33 @@ public class Bullet : MonoBehaviour
     public float damage;
     public int per;
 
-    public void Init(float damage, int per)
+    Rigidbody2D rigid;
+    private void Awake()
+    {
+        rigid = GetComponent<Rigidbody2D>();
+    }
+    public void Init(float damage, int per, Vector3 dir)
     {
         this.damage = damage;
         this.per = per;
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
+        if (per > -1)
+        {
+            Debug.Log("³¯¾Æ°©´Ï´Ù");
+            rigid.velocity = dir * 5;
+        }
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        
+        if (!collision.CompareTag("Enemy") || per == -1)
+        {
+            return;
+        }
+        per--;
+        if (per == -1)
+        {
+            rigid.velocity = Vector2.zero;
+            gameObject.SetActive(false);
+        }
     }
 }
