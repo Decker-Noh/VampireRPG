@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour
@@ -13,17 +14,31 @@ public class Weapon : MonoBehaviour
     float timer;
 
     Player player;
-
     private void Awake()
     {
-        player = GetComponentInParent<Player>();
+        player = GameManager.Instance.player;
     }
-    private void Start()
+    public void Init(ItemData data)
     {
-        Init();
-    }
-    public void Init()
-    {
+
+        //Base Set
+        name = "Weapon : " + data.itemName;
+        transform.parent = player.transform;
+        transform.localPosition = Vector3.zero;
+
+        //Property Set
+        id = data.itemID;
+        damage = data.baseDamage;
+        count = data.baseCount;
+        for (int i=0; i< GameManager.Instance.pool.Enemies.Length; i++)
+        {
+            if (data.projectile == GameManager.Instance.pool.Enemies[i])
+            {
+                prefabID = i;
+                break;
+            }
+        }
+
         switch (id)
         {
             case 0:
@@ -95,12 +110,10 @@ public class Weapon : MonoBehaviour
     }
     void Fire()
     {
-        Debug.Log("발사!");
         if (!player.scanner.nearestTarget)
         {
             return;
         }
-        Debug.Log("발사2");
         Vector3 targetPos = player.scanner.nearestTarget.transform.position;
         Vector3 dir = targetPos - transform.position;
         dir = dir.normalized;

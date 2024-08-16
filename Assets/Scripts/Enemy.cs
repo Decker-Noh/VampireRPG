@@ -18,23 +18,29 @@ public class Enemy : MonoBehaviour
     bool isLive;
 
     Rigidbody2D rigid;
-    Collider2D collider;
+    Collider2D coll;
     SpriteRenderer spriteRenderer;
 
     // Start is called before the first frame update
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
-        collider = GetComponent<Collider2D>();
+        coll = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator =gameObject.GetComponent<Animator>();
         wait = new WaitForFixedUpdate();
+
     }
     private void OnEnable()
     {
+        animator.SetBool("Dead", false);
         targetRigidbody = GameManager.Instance.player.GetComponent<Rigidbody2D>();
         isLive = true;
+        coll.enabled = true;
+        rigid.simulated = true;
+        animator.SetBool("Dead", false);
         health = maxHealth;
+        spriteRenderer.sortingOrder = 1;
     }
     public void EnemyInit(SpawnData spawnData)
     {
@@ -67,7 +73,7 @@ public class Enemy : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Bullet") || !gameObject.activeSelf)
+        if (!collision.CompareTag("Bullet") || !gameObject.activeSelf || !isLive)
             return;
         health -= collision.GetComponent<Bullet>().damage;
         StartCoroutine("KnockBack");
@@ -79,7 +85,16 @@ public class Enemy : MonoBehaviour
         else
         {
             //∏ÛΩ∫≈Õ ªÁ∏¡
-            Dead();
+            
+            isLive = false;
+            coll.enabled = false;
+            rigid.simulated = false;
+            spriteRenderer.sortingOrder = 1;
+            animator.SetBool("Dead", true);
+
+            GameManager.Instance.kill++;
+            GameManager.Instance.GetEXP();
+
         }
     }
     void Dead()
